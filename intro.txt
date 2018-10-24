@@ -1,0 +1,111 @@
+
+Intro
+
+Chef is an automation tool that provides a way to define infrastructure as code. Infrastructure as code simply means that managing infrastructure by writing code rather than using manual processes. Configuration management is all about trying to ensure that the files and software you are expecting to be on a machine are present, configured correctly, and working as intended.
+When you have only a single machine this is fairly simple. When you have five or ten servers, it is still possible to do this manually, but it may take all day. However, when your infrastructure scales up into the thousands we need a better way of doing things.
+Chef uses a pure-Ruby, domain-specific language (DSL) for writing system configurations.
+Below are the types of automation done by Chef, irrespective of the size of infrastructure:
+Infrastructure configuration
+Application deployment 
+Configurations are managed across your network
+
+Chef has a Client-Server architecture.
+In Chef, Nodes are dynamically updated with the configurations in the Server. This is called Pull Configuration which means that we don’t need to execute even a single command on the Chef server to push the configuration on the nodes, nodes will automatically update themselves with the configurations present in the Server.
+
+Configuration Management
+
+Let us understand Configuration Management this way – suppose you have to deploy a software on top of hundreds of systems. This software can be an operating system or a code or it can be an update of an existing software. You can do this task manually, but what happens if you have to finish this task overnight because tomorrow might be a Big Day, in which heavy traffic is expected.Even if you were able to do this manually there is a high possibility of multiple errors on your big day. What if the software you updated on hundreds of systems is not working, then how will you revert back to the previous stable version, will you be able to do this task manually? oF-course not!
+To solve this problem, Configuration Management was introduced. By using Configuration Management tools like Chef, Puppet, etc. you can automate this task. All you have to do is to specify the configurations in one centralized server and accordingly all the nodes will be configured.So basically, we need to specify the configurations once on the central server and replicate that on thousands of nodes.
+Configuration Management helps in performing the below tasks in a very structured and easy way:
+
+Figuring out which components to change when requirements change.
+Redoing an implementation because the requirements have changed since the last implementation.
+Reverting to a previous version of the component if you have replaced with a new but flawed version.
+Replacing the wrong component because you couldn’t accurately determine which component was supposed to be replaced.
+
+Components
+
+Chef has three major components:
+
+Workstation
+Server
+Nodes
+
+Workstation Details
+A workstation has the tools necessary to create and modify configuration details for any of the available nodes and can communicate with the chef server to make these available.
+
+An important tool to manage chef on a workstation is called knife. Knife acts as a gateway in which you can configure anything that would be stored on the server. It can manage nodes and configurations and can generally be used to access the server in a "chef-specific" way. While it would be possible to log into the server with SSH and make changes to all of the data that it handles manually, this is not really adhering to the processes that chef implements.
+
+Configurations and definitions that are created and modified on a workstation are committed to version control and then pushed to the server. The repository is called the chef-repo. It holds all of the data needed for the configuration of chef.
+
+Server Details
+The server is the central control point that is accessed by all of the other chef machines, whether as a client or a manager. It is basically a large repository or database of all of the configuration details.
+
+It handles connections and permissions from nodes and workstations and organizes data so that it can easily be pulled by clients. The server can also include a web interface in order to manage or configure some details.
+
+
+Node Details
+As mentioned above, a node can be a physical or virtual machine. Its only requirements are that it has access to the network and can communicate with the chef server. The user running the chef software also needs to be able to install software and make system changes.
+
+Each node communicates with the central server using an application called chef-client. This handles pulling data off of the server and executing the configuration steps necessary to get the node into its final state. The chef-client program and the chef server communicate through the use of RSA key-based authentication.
+
+Chef-client uses a tool called ohai to get statistics about the node. These are used in order to set up certain configuration details and populate variables contained within the files.
+
+Chef Repo File Structure
+Chef handles its configuration and dependency information on a workstation within a specified directory structure. It is important to understand this hierarchy in order to effectively create recipes and push changes.
+
+As we mentioned above, the server configuration files should be kept in version control in repository referred to as the "chef-repo". The chef-repo is a normal directory on your workstation that stores the chef files.
+
+In this directory, we can find a structure that looks like this:
+
+certificates: 
+Contains the SSL certificates that can be associated with clients for authentication.
+
+chefignore: 
+Lists the files and directories within the structure that should not be included in the push to the server.
+
+config: 
+Contains one of the two repository configuration files.
+
+rake.rb: 
+Defines some variable declarations for creating SSL certificates and some general options.
+
+cookbooks: 
+Contains the cookbooks that configure the infrastructure for your organization. This directory contains the cookbooks that are used to configure systems in the infrastructure. Each cookbook can be configured to contain cookbook-specific copyright, email, and license data.
+
+data_bags: 
+Contains various data bags for your configuration.Data bags are protected sub-directories that contain sensitive configuration details. Each sub-directory corresponds to a single data bag on the Chef server and contains a JSON file for each data bag item. If a sub-directory does not exist, then create it using SSL commands. After a data bag item is created, it can then be uploaded to the Chef server.They are only accessible to those nodes that have matching SSL certificates.
+
+environments: 
+Contains a top-level location to contain details for deploying the environment.Every environment that diverges from the default environment must be defined in this directory.The environments files can be Ruby DSL files (.rb) or they can be JSON files (.json). Use knife to install environment files to the Chef server.
+
+Rakefile: 
+This file defines the tasks that chef can perform in its configurations.
+
+roles: 
+Contains files that define the roles that can be assigned to nodes.
+
+
+Chef Cookbook File Structure
+Within the cookbooks directory in the chef-repo, sub-directories define specific cookbooks for applications. Within each separate application configuration directory is a structure that defines how this service should be installed and what changes must be made to make it work correctly.
+
+Within the application, you will find files and definitions that define how an application must be installed and configured.
+
+The metadata.rb or metadata.json files contains metadata information about the service. This includes basic information like the name of the cookbook and the version, but it also is the place where the dependency information is stored. If this cookbook depends on other cookbooks to be installed, it can list them in this file and chef will install and configure them prior to the current cookbook.
+
+The attributes directory contains attribute definitions that can be used to override or define settings for the nodes that will have this service.
+
+The definitions directory contains files that declare resources. This means that you can group functionality together under one heading.
+
+The files directory describes how chef should distribute files throughout the node on which this cookbook is deployed.
+
+The recipes directory contains the "recipes" that define how the service should be configured. Recipes are generally small files that configure specific aspects of the larger system. If a cookbook used to install and configure a web server, a recipe may enable a module or set up a sane firewall default.
+
+The templates directory is used to provide more complex configuration management. You can provide entire configuration files that contain embedded Ruby commands. The variables that are printed can be defined in other files.
+
+
+
+
+
+
+
